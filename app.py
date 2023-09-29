@@ -56,7 +56,7 @@ def get_atom_html(atom_idx, k=5000, lowest_ratio=0.14):
 @app.route("/render_atom/<int:atom_idx>")
 def render_atom(atom_idx):
     k = request.args.get("k", default=5000, type=int)
-    lowest_ratio = request.args.get("lowest_ratio", default=0.14, type=float)
+    lowest_ratio = request.args.get("lowest_ratio", default=0.05, type=float)
     validate_index(atom_idx, csr_codes.shape[1])
 
     return get_atom_html(atom_idx, k=k, lowest_ratio=lowest_ratio)

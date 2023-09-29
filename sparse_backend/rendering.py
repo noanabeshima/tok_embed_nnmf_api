@@ -1,7 +1,6 @@
-import torch
-from transformers import AutoTokenizer
+from tokenizers import Tokenizer
 
-tokenizer = AutoTokenizer.from_pretrained("EleutherAI/pythia-70m-v0")
+tokenizer = Tokenizer.from_pretrained("EleutherAI/pythia-70m-v0")
 
 
 def decode(tok_id_list, postprocessing=False):
@@ -16,15 +15,11 @@ def encode(text):
 
 
 def render_toks_w_weights(toks, weights):
-    if isinstance(weights, torch.Tensor):
-        weights = weights.cpu().detach()
-    else:
-        weights = torch.tensor(weights)
     toks = decode(toks, postprocessing=True)
 
     highlighted_text = []
 
-    for weight, tok in zip(weights.tolist(), toks):
+    for weight, tok in zip(weights, toks):
         if weight > 0.0:
             highlighted_text.append(
                 f'<span style="background-color:rgba(135,206,250,{min(1.3*weight, 1)});border: 0.3px solid black;padding: 0.3px">{tok}</span>'
