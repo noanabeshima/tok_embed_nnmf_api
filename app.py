@@ -1,4 +1,5 @@
 from flask import Flask, request
+from flask_cors import CORS
 from scipy.sparse import load_npz
 from sparse_backend import decode, encode, render_toks_w_weights, atom_query, code_query
 from sparse_backend.error_handlers import (
@@ -9,6 +10,7 @@ from sparse_backend.error_handlers import (
 import json
 
 app = Flask(__name__)
+CORS(app)
 app.register_error_handler(InvalidIndexError, handle_invalid_index)
 
 csr_codes = load_npz("csr_codes.npz")
