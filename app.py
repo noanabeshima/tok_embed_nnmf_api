@@ -23,7 +23,7 @@ def get_atom(atom_idx):
     k = request.args.get("k", default=5000, type=int)
     lowest_ratio = request.args.get("lowest_ratio", default=0.14, type=float)
 
-    code_to_weight = atom_query(atom_idx, csr_codes, k=k, lowest_ratio=lowest_ratio)
+    code_to_weight = atom_query(atom_idx, csr_codes, k=k, lowest_ratio=lowest_ratio, string=True)
 
     return json.dumps(code_to_weight)
 

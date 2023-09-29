@@ -1,4 +1,5 @@
 from .error_handlers import validate_index
+from .rendering import tokenizer
 import numpy as np
 
 def topk(arr, k=10):
@@ -13,20 +14,8 @@ def topk(arr, k=10):
     vals = arr[indices]
     return indices.tolist(), vals.tolist()
 
-def atom_query(atom_idx, csr_codes, k=5000, lowest_ratio=0.14):
-    atom_idx = int(atom_idx)
-    validate_index(atom_idx, csr_codes.shape[1])
 
-    toks, weights = topk(csr_codes[:, atom_idx].toarray().flatten(), k=k)
-
-    res = {
-        tok: weight
-        for tok, weight in zip(toks, weights)
-        if weight / weights[0] > lowest_ratio
-    }
-    return res
-
-def atom_query(atom_idx, csr_codes, k=5000, lowest_ratio=0.14):
+def atom_query(atom_idx, csr_codes, k=5000, lowest_ratio=0.14, string=False):
     atom_idx = int(atom_idx)
     validate_index(atom_idx, csr_codes.shape[1])
 
@@ -37,6 +26,12 @@ def atom_query(atom_idx, csr_codes, k=5000, lowest_ratio=0.14):
         for tok, weight in zip(toks, weights)
         if weight / (weights[0]+1e-3) > lowest_ratio
     }
+
+    if string:
+        res = {
+            tokenizer.decode([tok]): weight
+            for tok, weight in res.items()
+        }
     return res
 
 
