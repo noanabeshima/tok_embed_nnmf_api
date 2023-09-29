@@ -11,7 +11,7 @@ def decode(tok_id_list, postprocessing=False):
 
 
 def encode(text):
-    return tokenizer.encode(text, return_tensors="pt")[0].tolist()
+    return tokenizer.encode(text).ids
 
 
 def render_toks_w_weights(toks, weights):
