@@ -16,6 +16,8 @@ def encode(text):
 
 def render_toks_w_weights(toks, weights):
     toks = decode(toks, postprocessing=True)
+    max_weight = max(weights)
+    weights = [w / max_weight for w in weights]
 
     highlighted_text = []
 
