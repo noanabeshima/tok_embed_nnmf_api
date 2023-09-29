@@ -28,10 +28,10 @@ def atom_query(atom_idx, csr_codes, k=5000, lowest_ratio=0.14, string=False):
     }
 
     if string:
-        res = {
-            tokenizer.decode([tok]): weight
+        res = [
+            {'tok': tokenizer.decode([tok]), 'weight': weight, 'tok_id': tok}
             for tok, weight in res.items()
-        }
+        ]
     return res
 
 
@@ -40,8 +40,8 @@ def code_query(code_idx: int, csr_codes, k=10, lowest_ratio=0.1):
 
     atoms, weights = topk(csr_codes[code_idx].toarray().flatten(), k=k)
 
-    return {
-        atom: weight
+    return [
+        {'atom': atom, 'weight': weight}
         for atom, weight in zip(atoms, weights)
         if weight / (weights[0]+1e-3) > lowest_ratio
-    }
+    ]
