@@ -1,9 +1,9 @@
 from .error_handlers import validate_index
 from .rendering import tokenizer
 import numpy as np
+from scipy.sparse import load_npz
 
 def topk(arr, k=10):
-    assert len(arr.shape) == 1
     assert isinstance(k, int) and k > 0
 
     if not isinstance(arr, np.ndarray):
@@ -14,24 +14,32 @@ def topk(arr, k=10):
     vals = arr[indices]
     return indices.tolist(), vals.tolist()
 
+csr_codes = load_npz("csr_codes.npz")
+csc_codes = load_npz("csc_codes.npz")
 
-def atom_query(atom_idx, csr_codes, k=5000, lowest_ratio=0.14, string=False):
+
+def atom_query(atom_idx, k=5000, lowest_ratio=0.14, string=False):
     atom_idx = int(atom_idx)
     validate_index(atom_idx, csr_codes.shape[1])
 
-    toks, weights = topk(csr_codes[:, atom_idx].toarray().flatten(), k=k)
-
-    res = {
-        tok: weight
-        for tok, weight in zip(toks, weights)
-        if weight / (weights[0]+1e-3) > lowest_ratio
-    }
+    # tok_ids, weights = topk(csr_codes[:, atom_idx].toarray().flatten(), k=k)
+    indices = csc_codes[:, atom_idx].indices
+    _idx, weights = topk(csc_codes[:, atom_idx].data, k=k)
+    tok_ids = indices[_idx]
+    
 
     if string:
         res = [
             (tokenizer.decode([tok]), weight)
-            for tok, weight in res.items()
+            for tok, weight in zip(tok_ids, weights)
+            if weight / (weights[0]+1e-3) > lowest_ratio
         ]
+    else:
+        res = {
+            tok: weight
+            for tok, weight in zip(tok_ids, weights)
+            if weight / (weights[0]+1e-3) > lowest_ratio
+        }
     return res
 
 

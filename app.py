@@ -23,7 +23,7 @@ def get_atom(atom_idx):
     k = request.args.get("k", default=5000, type=int)
     lowest_ratio = request.args.get("lowest_ratio", default=0.14, type=float)
 
-    atom_result = atom_query(atom_idx, csr_codes, k=k, lowest_ratio=lowest_ratio, string=True)
+    atom_result = atom_query(atom_idx, k=k, lowest_ratio=lowest_ratio, string=True)
 
     return json.dumps(atom_result)
 
@@ -59,7 +59,7 @@ def see_toks(text):
 
 
 def get_atom_html(atom_idx, k=5000, lowest_ratio=0.14):
-    tok_id_to_weight = atom_query(atom_idx, csr_codes, k=k, lowest_ratio=lowest_ratio)
+    tok_id_to_weight = atom_query(atom_idx, k=k, lowest_ratio=lowest_ratio)
     return render_toks_w_weights(
         list(tok_id_to_weight.keys()), list(tok_id_to_weight.values())
     )
