@@ -41,7 +41,7 @@ def code_query(code_idx: int, csr_codes, k=10, lowest_ratio=0.1):
     atoms, weights = topk(csr_codes[code_idx].toarray().flatten(), k=k)
 
     return [
-        (atom, 'weight')
+        (atom, weight)
         for atom, weight in zip(atoms, weights)
         if weight / (weights[0]+1e-3) > lowest_ratio
     ]
