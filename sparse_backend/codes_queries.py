@@ -2,6 +2,8 @@ from .error_handlers import validate_index
 from .rendering import tokenizer
 import numpy as np
 from scipy.sparse import load_npz
+from functools import lru_cache
+
 
 def topk(arr, k=10):
     assert isinstance(k, int) and k > 0
@@ -18,11 +20,11 @@ csr_codes = load_npz("csr_codes.npz")
 csc_codes = load_npz("csc_codes.npz")
 
 
+@lru_cache(maxsize=5000)
 def atom_query(atom_idx, k=5000, lowest_ratio=0.14, string=False):
     atom_idx = int(atom_idx)
     validate_index(atom_idx, csr_codes.shape[1])
 
-    # tok_ids, weights = topk(csr_codes[:, atom_idx].toarray().flatten(), k=k)
     indices = csc_codes[:, atom_idx].indices
     _idx, weights = topk(csc_codes[:, atom_idx].data, k=k)
     tok_ids = indices[_idx]
