@@ -39,6 +39,16 @@ def get_code(code_idx):
 
     return json.dumps(code_result)
 
+@app.route("/code_str/<code_str>")
+def get_code_from_string(code_str):
+    k = request.args.get("k", default=10, type=int)
+    lowest_ratio = request.args.get("lowest_ratio", default=0.1, type=float)
+
+    code_idx = encode(code_str)[0]
+    code_result = code_query(code_idx, csr_codes, k=k, lowest_ratio=lowest_ratio)
+    
+    return json.dumps({'tok_str': decode([code_idx])[0], 'tok_id': code_idx, 'results': code_result})
+
 
 # ~~~~~~~~~~ Non-essential endpoints below ~~~~~~~~~~ #
 
