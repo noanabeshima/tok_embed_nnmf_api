@@ -49,6 +49,41 @@ def get_code_from_string(code_str):
     
     return json.dumps({'tok_str': decode([code_idx])[0], 'tok_id': code_idx, 'results': code_result})
 
+from thefuzz import process, fuzz
+import numpy as np
+import json
+
+with open("tokens.json", "r") as f:
+    tokens = np.array(json.load(f))
+flattened_tokens = [tok.strip().lower() for tok in tokens]
+
+
+@app.route("/get_suggestions")
+def get_matches():
+    query = request.args.get("q", default="", type=str)
+    if query == "":
+        return json.dumps([])
+    k = request.args.get("k", default=10, type=int)
+
+    flattened_query = query.strip().lower()
+    flattened_query_len = len(flattened_query)
+
+    # Get topk using something like prefix matching on strings without spaces or capitalization
+    prefix_scores = [int(tok.startswith(flattened_query))*(flattened_query_len-0.2*len(tok))+int(flattened_query.startswith(tok))*(len(tok)-0.2*flattened_query_len) - 20*(tok == '') - (len(tok) < 3) for tok in flattened_tokens]
+    prefix_scores = np.array(prefix_scores)
+    topk_indices = prefix_scores.argpartition(-k)[-k:]
+    candidates, scores = tokens[topk_indices].tolist(), prefix_scores[topk_indices].tolist()
+
+    # Drop candidates with 0 score
+    candidates = [c for c, score in zip(candidates, scores) if score > 0]
+
+    # Reorder candidates to take into account capitalization/spacing
+    fuzz_scores = [score + fuzz.ratio(query, c)/100 for c, score in zip(candidates, scores)]
+    candidates = [c for fuzz_score, c in sorted(zip(fuzz_scores, candidates), reverse=True)]
+    
+    return candidates
+
+
 
 # ~~~~~~~~~~ Non-essential endpoints below ~~~~~~~~~~ #
 
