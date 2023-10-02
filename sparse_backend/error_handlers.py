@@ -1,4 +1,4 @@
-from flask_api import status
+# from flask_api import status
 
 
 class InvalidIndexError(Exception):
@@ -15,4 +15,5 @@ def validate_index(idx, max_val):
 
 def handle_invalid_index(error):
     """Handles InvalidIndexError"""
-    return str(error), status.HTTP_400_BAD_REQUEST
+    # return str(error), status.HTTP_400_BAD_REQUEST
+    return str(error), 400
