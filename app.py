@@ -63,13 +63,13 @@ def get_suggestions():
     query = request.args.get("q", default="", type=str)
     if query == "":
         return json.dumps([])
-    k = request.args.get("k", default=10, type=int)
+    k = request.args.get("k", default=6, type=int)
 
     flattened_query = query.strip().lower()
     flattened_query_len = len(flattened_query)
 
     # Get topk using something like prefix matching on strings without spaces or capitalization
-    prefix_scores = [int(tok.startswith(flattened_query))*(flattened_query_len)+int(flattened_query.startswith(tok))*len(tok) - 1000*((tok == '')+(len(tok) < 3)) for tok in flattened_tokens]
+    prefix_scores = [int(tok.startswith(flattened_query))*(flattened_query_len)+int(flattened_query.startswith(tok))*len(tok) - 1000*(tok == '') for tok in flattened_tokens]
     prefix_scores = np.array(prefix_scores)
     topk_indices = prefix_scores.argpartition(-k)[-k:]
     candidates, scores = tokens[topk_indices].tolist(), prefix_scores[topk_indices].tolist()
