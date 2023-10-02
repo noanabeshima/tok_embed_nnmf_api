@@ -7,7 +7,10 @@ from sparse_backend.error_handlers import (
     handle_invalid_index,
     InvalidIndexError,
 )
+from thefuzz import fuzz
+import numpy as np
 import json
+
 
 app = Flask(__name__)
 CORS(app)
@@ -49,9 +52,6 @@ def get_code_from_string(code_str):
     
     return json.dumps({'tok_str': decode([code_idx])[0], 'tok_id': code_idx, 'results': code_result})
 
-from thefuzz import process, fuzz
-import numpy as np
-import json
 
 with open("tokens.json", "r") as f:
     tokens = np.array(json.load(f))
@@ -59,7 +59,7 @@ flattened_tokens = [tok.strip().lower() for tok in tokens]
 
 
 @app.route("/get_suggestions")
-def get_matches():
+def get_suggestions():
     query = request.args.get("q", default="", type=str)
     if query == "":
         return json.dumps([])
