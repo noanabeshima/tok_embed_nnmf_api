@@ -69,13 +69,14 @@ def get_suggestions():
     flattened_query_len = len(flattened_query)
 
     # Get topk using something like prefix matching on strings without spaces or capitalization
-    prefix_scores = [int(tok.startswith(flattened_query))*(flattened_query_len-0.2*len(tok))+int(flattened_query.startswith(tok))*(len(tok)-0.2*flattened_query_len) - 20*(tok == '') - (len(tok) < 3) for tok in flattened_tokens]
+    prefix_scores = [int(tok.startswith(flattened_query))*(flattened_query_len)+int(flattened_query.startswith(tok))*len(tok) - 1000*((tok == '')+(len(tok) < 3)) for tok in flattened_tokens]
     prefix_scores = np.array(prefix_scores)
     topk_indices = prefix_scores.argpartition(-k)[-k:]
     candidates, scores = tokens[topk_indices].tolist(), prefix_scores[topk_indices].tolist()
 
     # Drop candidates with 0 score
     candidates = [c for c, score in zip(candidates, scores) if score > 0]
+    scores = [score for score in scores if score > 0]
 
     # Reorder candidates to take into account capitalization/spacing
     fuzz_scores = [score + fuzz.ratio(query, c)/100 for c, score in zip(candidates, scores)]
